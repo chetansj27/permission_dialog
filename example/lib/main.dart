@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_dialog/permission_dialog.dart';
 
@@ -46,13 +46,33 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
-      ),
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: Container(
+            child: Column(
+              children: <Widget>[
+                RaisedButton(
+                    child: Text("Press"),
+                    onPressed: () {
+                      PermissionDialog.permissionDialogWithMessage(
+                          1, "hi", "he");
+                    }),
+                RaisedButton(
+                    child: Text("Without"),
+                    onPressed: () {
+                      PermissionDialog.permissionDialog(3);
+                    }),
+                RaisedButton(
+                    child: Text("Multiple"),
+                    onPressed: () {
+                      PermissionDialog.multiplePermissionDialog();
+                    })
+              ],
+
+
+            ),
+          )),
     );
   }
 }
