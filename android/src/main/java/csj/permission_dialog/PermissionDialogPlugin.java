@@ -34,6 +34,7 @@ public class PermissionDialogPlugin implements FlutterPlugin, MethodCallHandler,
     private Activity activity;
     private String permissionWithoutMessage;
     private int STORAGE_PERMISSION_CODE = 1;
+    String title,message;
 
     private MethodChannel channel;
 
@@ -63,35 +64,40 @@ public class PermissionDialogPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        if (call.method.equals("getPlatformVersion")) {
-            result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else if (call.method.equals("permissionWithMessage")) {
-            if (ContextCompat.checkSelfPermission(activity,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(activity, "You have already granted this permission!",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                requestStoragePermission();
-            }
-        } else if (call.method.equals("permissionDialog")) {
-            int id = Integer.parseInt(call.argument("id").toString());
-            permissionCode(id);
-            if (ContextCompat.checkSelfPermission(activity,
-                    permissionWithoutMessage) == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(activity, "You have already granted this permission!",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                requestPermissionWithout();
-            }
-        } else if (call.method.equals("multiplePermissionDialog")) {
-            if (!hasPermissions(activity, Permissions)) {
-                int permission_All = 1;
-                ActivityCompat.requestPermissions(activity, Permissions, permission_All);
-            } else {
-                Toast.makeText(activity, "Granted", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            result.notImplemented();
+        switch (call.method) {
+            case "permissionWithMessage":
+                title=call.argument("title").toString();
+                message=call.argument("message").toString();
+                if (ContextCompat.checkSelfPermission(activity,
+                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(activity, "You have already granted this permission!",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    requestStoragePermission();
+                }
+                break;
+            case "permissionDialog":
+                int id = Integer.parseInt(call.argument("id").toString());
+                permissionCode(id);
+                if (ContextCompat.checkSelfPermission(activity,
+                        permissionWithoutMessage) == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(activity, "You have already granted this permission!",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    requestPermissionWithout();
+                }
+                break;
+            case "multiplePermissionDialog":
+                if (!hasPermissions(activity, Permissions)) {
+                    int permission_All = 1;
+                    ActivityCompat.requestPermissions(activity, Permissions, permission_All);
+                } else {
+                    Toast.makeText(activity, "Granted", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                result.notImplemented();
+                break;
         }
     }
 
@@ -123,7 +129,6 @@ public class PermissionDialogPlugin implements FlutterPlugin, MethodCallHandler,
     private void requestPermissionWithout() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                 permissionWithoutMessage)) {
-
             ActivityCompat.requestPermissions(activity,
                     new String[]{permissionWithoutMessage}, STORAGE_PERMISSION_CODE);
 
@@ -139,8 +144,8 @@ public class PermissionDialogPlugin implements FlutterPlugin, MethodCallHandler,
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                 Manifest.permission.READ_EXTERNAL_STORAGE)) {
             new AlertDialog.Builder(activity)
-                    .setTitle("Permission needed")
-                    .setMessage("This permission is needed to store messages")
+                    .setTitle(title)
+                    .setMessage(message)
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

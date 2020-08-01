@@ -14,8 +14,12 @@ class PermissionDialog {
   static Future<Null> permissionDialogWithMessage(
       int id, String title, String message) async {
     Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent("id", () => id);
+    args.putIfAbsent("title", () => title);
+    args.putIfAbsent("message", () => message);
 
-    await _channel.invokeMethod("permissionWithMessage");
+
+    await _channel.invokeMethod("permissionWithMessage",args);
     return null;
   }
 
